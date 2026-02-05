@@ -20,23 +20,24 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', 'Segoe UI', sans-serif; }
         body { background: var(--bg); color: var(--text); padding-bottom: 50px; }
 
-        /* Login */
         #login-overlay { position: fixed; inset: 0; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); z-index: 1000; display: flex; align-items: center; justify-content: center; }
         .login-box { background: var(--white); padding: 40px; border-radius: 20px; text-align: center; width: 90%; max-width: 380px; box-shadow: 0 20px 25px rgba(0,0,0,0.1); }
         .login-input { width: 100%; padding: 14px; margin-top: 10px; border: 2px solid var(--border); border-radius: 12px; font-size: 16px; }
 
-        /* Header */
         header { background: var(--white); padding: 20px 5%; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--border); position: sticky; top: 0; z-index: 99; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
         .logo-text { font-weight: 800; color: var(--primary-dark); font-size: 22px; letter-spacing: -0.5px; }
 
-        /* Main Content */
         main { padding: 20px 5%; }
         .prop-section { margin-top: 40px; }
+        .prop-title-container { display: flex; align-items: center; gap: 10px; margin-bottom: -2px; }
         .prop-title { 
             background: var(--primary); color: white; padding: 12px 25px; 
             border-radius: 12px 12px 0 0; font-weight: 800; font-size: 18px;
-            display: inline-block; box-shadow: 4px 0 10px rgba(16, 185, 129, 0.1);
+            display: flex; align-items: center; gap: 10px;
         }
+        .btn-edit-title { background: none; border: none; color: white; cursor: pointer; opacity: 0.8; transition: 0.2s; }
+        .btn-edit-title:hover { opacity: 1; transform: scale(1.1); }
+
         .table-card { 
             background: var(--white); border-radius: 0 15px 15px 15px; padding: 20px; 
             border: 1px solid var(--border); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05);
@@ -47,7 +48,6 @@
         th { text-align: left; padding: 14px; background: #f9fafb; font-size: 11px; color: #6b7280; text-transform: uppercase; border-bottom: 2px solid var(--bg); }
         td { padding: 12px; border-bottom: 1px solid var(--bg); font-size: 14px; }
 
-        /* Edição e Status */
         .edit-cell { display: block; padding: 6px; border-radius: 6px; min-width: 100px; transition: 0.2s; }
         .edit-cell:focus { background: #ecfdf5; outline: 2px solid var(--primary); }
         
@@ -55,6 +55,12 @@
         .st-Pago { background: #d1fae5; color: #065f46; }
         .st-NaoPago { background: #ffe4e6; color: #9f1239; }
         .st-Pendente { background: #fef3c7; color: #92400e; }
+
+        /* Estilo da Tabela de Notas Grande */
+        .notas-gerais-section { margin-top: 60px; padding: 20px; background: #fff; border-radius: 15px; border: 2px solid var(--primary); }
+        .notas-gerais-title { font-weight: 800; color: var(--primary-dark); margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
+        #notas-gerais-textarea { width: 100%; min-height: 200px; padding: 15px; border-radius: 10px; border: 1px solid var(--border); font-size: 16px; resize: vertical; outline: none; }
+        #notas-gerais-textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1); }
 
         .btn-logout { background: none; border: none; color: var(--danger); cursor: pointer; }
     </style>
@@ -65,8 +71,8 @@
         <div class="login-box">
             <i class="ph ph-buildings" style="font-size: 48px; color: var(--primary);"></i>
             <h2 style="margin: 15px 0; color: var(--primary-dark);">Condomínios Malate</h2>
-            <input type="text" id="user" value="" class="login-input" placeholder="Usuário">
-            <input type="password" id="pass" value="" class="login-input" placeholder="Senha">
+            <input type="text" id="user" value="" class="login-input">
+            <input type="password" id="pass" value="" class="login-input">
             <button onclick="realizarLogin()" style="width:100%; margin-top:20px; padding:16px; background:var(--primary); color:white; border:none; border-radius:12px; font-weight:bold; cursor:pointer; font-size:16px;">Entrar no Sistema</button>
         </div>
     </div>
@@ -83,8 +89,17 @@
         <div style="text-align:center; margin-top:50px; color:#6b7280;">Carregando condomínios...</div>
     </main>
 
+    <div style="padding: 0 5% 50px 5%;">
+        <section class="notas-gerais-section">
+            <div class="notas-gerais-title">
+                <i class="ph ph-note-pencil" style="font-size: 24px;"></i>
+                NOTAS GERAIS E OBSERVAÇÕES
+            </div>
+            <textarea id="notas-gerais-textarea" placeholder="Escreva aqui informações importantes sobre os condomínios, pendências gerais ou avisos..." onblur="salvarNotasGerais(this.value)"></textarea>
+        </section>
+    </div>
+
     <script>
-        // Credenciais do Supabase
         const SB_URL = 'https://dwznzdnvtezhkqzqwrsa.supabase.co'; 
         const SB_KEY = 'sb_publishable_ZajKS3fZjhbLeGLdo-2IsA_sQgarlui';
         const _supabase = supabase.createClient(SB_URL, SB_KEY);
@@ -101,6 +116,7 @@
             if(document.getElementById('user').value === 'Malate' && document.getElementById('pass').value === '1234') {
                 document.getElementById('login-overlay').style.display = 'none';
                 await carregarTabelas();
+                await carregarNotasGerais();
             } else { alert('Acesso negado!'); }
         }
 
@@ -109,11 +125,10 @@
             let { data, error } = await _supabase.from('condominio_verde').select('*').order('id', { ascending: true });
 
             if (error) {
-                container.innerHTML = `<div style="color:red; text-align:center;">Erro: Certifique-se que a tabela 'condominio_verde' existe e o RLS está desativado.</div>`;
+                container.innerHTML = `<div style="color:red; text-align:center;">Erro ao carregar dados.</div>`;
                 return;
             }
 
-            // Agrupa os dados por propriedade
             const grupos = data.reduce((acc, item) => {
                 if (!acc[item.propriedade]) acc[item.propriedade] = [];
                 acc[item.propriedade].push(item);
@@ -130,7 +145,14 @@
                 textos[idiomaAtual].th.forEach(t => ths += `<th>${t}</th>`);
 
                 section.innerHTML = `
-                    <div class="prop-title">${nomeProp}</div>
+                    <div class="prop-title-container">
+                        <div class="prop-title">
+                            <span id="title-text-${nomeProp.replace(/\s/g, '')}">${nomeProp}</span>
+                            <button class="btn-edit-title" onclick="editarNomeCondominio('${nomeProp}')">
+                                <i class="ph ph-pencil-simple"></i>
+                            </button>
+                        </div>
+                    </div>
                     <div class="table-card">
                         <table>
                             <thead><tr>${ths}</tr></thead>
@@ -141,7 +163,6 @@
                 container.appendChild(section);
 
                 const tbody = document.getElementById(`lista-${nomeProp.replace(/\s/g, '')}`);
-                
                 grupos[nomeProp].forEach(u => {
                     const tr = document.createElement('tr');
                     let colMeses = '';
@@ -168,6 +189,14 @@
             }
         }
 
+        async function editarNomeCondominio(nomeAntigo) {
+            const novoNome = prompt("Digite o novo nome para este condomínio/propriedade:", nomeAntigo);
+            if (novoNome && novoNome !== nomeAntigo) {
+                const { error } = await _supabase.from('condominio_verde').update({ propriedade: novoNome }).eq('propriedade', nomeAntigo);
+                if (!error) carregarTabelas();
+            }
+        }
+
         async function atualizarMes(id, mes, el) {
             await _supabase.from('condominio_verde').update({ [mes]: el.value }).eq('id', id);
             el.className = `gaveta st-${el.value.replace(' ', '')}`;
@@ -175,6 +204,16 @@
 
         async function salvarDado(id, campo, el) {
             await _supabase.from('condominio_verde').update({ [campo]: el.innerText }).eq('id', id);
+        }
+
+        // Funções para as Notas Gerais (Usando localStorage para simplicidade ou pode criar tabela no SB)
+        function salvarNotasGerais(texto) {
+            localStorage.setItem('notas_malate_geral', texto);
+        }
+
+        function carregarNotasGerais() {
+            const notaSalva = localStorage.getItem('notas_malate_geral');
+            if(notaSalva) document.getElementById('notas-gerais-textarea').value = notaSalva;
         }
 
         function alternarIdioma() {

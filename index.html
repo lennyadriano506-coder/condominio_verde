@@ -14,17 +14,14 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
         body { background: var(--bg); color: var(--text); padding-bottom: 50px; }
 
-        /* Login */
         #login-overlay { position: fixed; inset: 0; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); z-index: 1000; display: flex; align-items: center; justify-content: center; }
         .login-box { background: var(--white); padding: 40px; border-radius: 20px; text-align: center; width: 90%; max-width: 380px; box-shadow: 0 20px 25px rgba(0,0,0,0.1); }
         .login-input { width: 100%; padding: 14px; margin-top: 10px; border: 2px solid var(--border); border-radius: 12px; font-size: 16px; }
         .btn-access { background: none; border: none; color: #6b7280; font-size: 12px; margin-top: 15px; cursor: pointer; text-decoration: underline; }
 
-        /* Header */
-        header { background: var(--white); padding: 20px 5%; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--border); position: sticky; top: 0; z-index: 99; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        header { background: var(--white); padding: 20px 5%; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--border); position: sticky; top: 0; z-index: 99; }
         .logo-text { font-weight: 800; color: var(--primary-dark); font-size: 22px; }
 
-        /* Content */
         main { padding: 20px 5%; }
         .prop-section { margin-top: 40px; }
         .prop-title { background: var(--primary); color: white; padding: 12px 25px; border-radius: 12px 12px 0 0; font-weight: 800; display: flex; align-items: center; gap: 10px; }
@@ -40,7 +37,6 @@
         .st-NaoPago { background: #ffe4e6; color: #9f1239; }
         .st-Pendente { background: #fef3c7; color: #92400e; }
 
-        /* Notas Section */
         .notas-gerais-section { margin: 40px 5%; padding: 20px; background: #fff; border-radius: 15px; border: 2px solid var(--primary); }
         #notas-gerais-textarea { width: 100%; min-height: 150px; padding: 15px; border-radius: 10px; border: 1px solid var(--border); font-size: 16px; outline: none; }
     </style>
@@ -49,11 +45,11 @@
 
     <div id="login-overlay">
         <div class="login-box">
-            <h2 id="login-title" style="color: var(--primary-dark);">Condomínios Malate</h2>
+            <h2 id="login-title">Condomínios Malate</h2>
             <input type="text" id="user" class="login-input" placeholder="Usuário">
             <input type="password" id="pass" class="login-input" placeholder="Senha">
             <button onclick="realizarLogin()" id="btn-login-text" style="width:100%; margin-top:20px; padding:16px; background:var(--primary); color:white; border:none; border-radius:12px; font-weight:bold; cursor:pointer;">Entrar</button>
-            <button class="btn-access" onclick="alterarAcesso()" id="btn-change-access">Alterar Usuário/Senha</button>
+            <button class="btn-access" onclick="alterarAcessoUniversal()" id="btn-change-access">Alterar Usuário/Senha para TODOS</button>
         </div>
     </div>
 
@@ -68,7 +64,7 @@
     <main id="main-content"></main>
 
     <div class="notas-gerais-section">
-        <h3 id="notas-title" style="margin-bottom:10px; color:var(--primary-dark);">NOTAS GERAIS</h3>
+        <h3 id="notas-title" style="margin-bottom:10px;">NOTAS GERAIS</h3>
         <textarea id="notas-gerais-textarea" onblur="salvarNotasNoSB(this.value)"></textarea>
     </div>
 
@@ -82,29 +78,22 @@
 
         const dic = {
             pt: {
-                loginTitle: "Condomínios Malate", btnLogin: "Entrar", btnAccess: "Alterar Usuário/Senha",
+                loginTitle: "Condomínios Malate", btnLogin: "Entrar", btnAccess: "Alterar Usuário/Senha (Global)",
                 header: "CONDOMÍNIOS MALATE", notas: "NOTAS GERAIS E OBSERVAÇÕES",
                 th: ["ID", "Nome Cliente", "Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez", "Apt", "Contacto", "Renda", "Notas"],
                 st: ["Pendente", "Pago", "Não pago"], placeholderNota: "Escreva aqui..."
             },
             de: {
-                loginTitle: "Malate Wohnanlagen", btnLogin: "Einloggen", btnAccess: "Zugangsdaten ändern",
+                loginTitle: "Malate Wohnanlagen", btnLogin: "Einloggen", btnAccess: "Zugangsdaten für ALLE ändern",
                 header: "MALATE WOHNANLAGEN", notas: "ALLGEMEINE NOTIZEN UND BEMERKUNGEN",
                 th: ["ID", "Kundenname", "Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez", "Whg", "Kontakt", "Miete", "Notizen"],
                 st: ["Ausstehend", "Bezahlt", "Nicht bezahlt"], placeholderNota: "Schreiben Sie hier..."
             }
         };
 
-        // Dicionário de tradução de nomes e localizações
         const geoTraducoes = {
-            "Condomínio": "Wohnanlage",
-            "Casa": "Haus",
-            "Apartamento": "Wohnung",
-            "Cidade": "Stadt",
-            "Grande": "Groß",
-            "Loja": "Geschäft",
-            "Benfica": "Benfica (Bezirk)",
-            "Choupal": "Choupal (Viertel)"
+            "Condomínio": "Wohnanlage", "Casa": "Haus", "Apartamento": "Wohnung", "Cidade": "Stadt",
+            "Grande": "Groß", "Loja": "Geschäft", "Benfica": "Benfica (Bezirk)", "Choupal": "Choupal (Viertel)"
         };
 
         function traduzirTexto(texto) {
@@ -117,23 +106,30 @@
             return traduzido;
         }
 
-        function realizarLogin() {
-            const u = localStorage.getItem('malate_user') || 'lenny';
-            const p = localStorage.getItem('malate_pass') || 'lenny';
-            if(document.getElementById('user').value === u && document.getElementById('pass').value === p) {
+        async function realizarLogin() {
+            const userIn = document.getElementById('user').value;
+            const passIn = document.getElementById('pass').value;
+
+            let { data } = await _supabase.from('acesso_sistema').select('*').eq('id', 1).single();
+
+            if(userIn === data.usuario && passIn === data.senha) {
                 document.getElementById('login-overlay').style.display = 'none';
                 carregarTudo();
-            } else { alert('Erro!'); }
+            } else { alert('Acesso negado!'); }
         }
 
-        function alterarAcesso() {
-            const novoU = prompt("Novo usuário:");
-            const novoP = prompt("Nova senha:");
-            if(novoU && novoP) {
-                localStorage.setItem('malate_user', novoU);
-                localStorage.setItem('malate_pass', novoP);
-                alert("Dados alterados!");
-            }
+        async function alterarAcessoUniversal() {
+            const atual = prompt("Digite a SENHA ATUAL para autorizar a mudança:");
+            let { data } = await _supabase.from('acesso_sistema').select('senha').eq('id', 1).single();
+            
+            if(atual === data.senha) {
+                const novoU = prompt("Novo usuário para todos:");
+                const novoP = prompt("Nova senha para todos:");
+                if(novoU && novoP) {
+                    await _supabase.from('acesso_sistema').update({ usuario: novoU, senha: novoP }).eq('id', 1);
+                    alert("Acesso atualizado no servidor para todos os usuários!");
+                }
+            } else { alert("Senha atual incorreta. Não autorizado."); }
         }
 
         async function carregarTudo() {
@@ -143,7 +139,6 @@
             document.getElementById('notas-gerais-textarea').placeholder = dic[idiomaAtual].placeholderNota;
 
             let { data } = await _supabase.from('condominio_verde').select('*').order('id', { ascending: true });
-            
             const grupos = data.reduce((acc, item) => {
                 if (!acc[item.propriedade]) acc[item.propriedade] = [];
                 acc[item.propriedade].push(item);
@@ -171,11 +166,12 @@
                     let colMeses = '';
                     meses.forEach(m => {
                         const status = u[m] || 'Pendente';
-                        const tradStatus = status === 'Pendente' ? dic[idiomaAtual].st[0] : (status === 'Pago' ? dic[idiomaAtual].st[1] : dic[idiomaAtual].st[2]);
+                        const idx = status === 'Pendente' ? 0 : (status === 'Pago' ? 1 : 2);
+                        const tradStatus = dic[idiomaAtual].st[idx];
                         colMeses += `<td><select class="gaveta st-${status.replace(' ', '')}" onchange="atualizarStatus(${u.id},'${m}',this)">
-                            <option value="Pendente" ${status==='Pendente'?'selected':''}>${tradStatus}</option>
-                            <option value="Pago" ${status==='Pago'?'selected':''}>${tradStatus}</option>
-                            <option value="Não pago" ${status==='Não pago'?'selected':''}>${tradStatus}</option>
+                            <option value="Pendente" ${status==='Pendente'?'selected':''}>${dic[idiomaAtual].st[0]}</option>
+                            <option value="Pago" ${status==='Pago'?'selected':''}>${dic[idiomaAtual].st[1]}</option>
+                            <option value="Não pago" ${status==='Não pago'?'selected':''}>${dic[idiomaAtual].st[2]}</option>
                         </select></td>`;
                     });
                     html += `<tr>
@@ -194,7 +190,7 @@
         }
 
         async function editarNomeProp(velho) {
-            const novo = prompt("Novo nome:", velho);
+            const novo = prompt("Novo nome (em PT):", velho);
             if(novo) { await _supabase.from('condominio_verde').update({propriedade: novo}).eq('propriedade', velho); carregarTudo(); }
         }
 
@@ -223,4 +219,5 @@
         }
     </script>
 </body>
-</html>
+    </html>
+    

@@ -167,13 +167,15 @@
                     meses.forEach(m => {
                         const status = u[m] || 'Pendente';
                         const idx = status === 'Pendente' ? 0 : (status === 'Pago' ? 1 : 2);
-                        const tradStatus = dic[idiomaAtual].st[idx];
                         colMeses += `<td><select class="gaveta st-${status.replace(' ', '')}" onchange="atualizarStatus(${u.id},'${m}',this)">
                             <option value="Pendente" ${status==='Pendente'?'selected':''}>${dic[idiomaAtual].st[0]}</option>
                             <option value="Pago" ${status==='Pago'?'selected':''}>${dic[idiomaAtual].st[1]}</option>
                             <option value="Não pago" ${status==='Não pago'?'selected':''}>${dic[idiomaAtual].st[2]}</option>
                         </select></td>`;
                     });
+                    // --- INÍCIO DA CORREÇÃO ---
+                    // Adicionado '|| ""' para garantir que o valor nunca seja nulo/undefined,
+                    // assegurando que o <span> seja sempre renderizado.
                     html += `<tr>
                         <td>${u.id}</td>
                         <td><span contenteditable="true" onblur="salvar(${u.id},'nome_cliente',this)">${u.nome_cliente || ''}</span></td>
@@ -183,6 +185,7 @@
                         <td><span contenteditable="true" onblur="salvar(${u.id},'renda',this)">${u.renda || ''}</span></td>
                         <td><span contenteditable="true" onblur="salvar(${u.id},'notas',this)">${u.notas || ''}</span></td>
                     </tr>`;
+                    // --- FIM DA CORREÇÃO ---
                 });
                 container.innerHTML += html + `</tbody></table></div></div>`;
             }
@@ -219,5 +222,4 @@
         }
     </script>
 </body>
-    </html>
-    
+</html>

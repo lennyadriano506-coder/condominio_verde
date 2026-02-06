@@ -32,6 +32,15 @@
         th { text-align: left; padding: 14px; background: #f9fafb; font-size: 11px; color: #6b7280; text-transform: uppercase; }
         td { padding: 12px; border-bottom: 1px solid var(--bg); font-size: 14px; }
 
+        /* --- INÍCIO DA NOVA CORREÇÃO CSS --- */
+        td span[contenteditable="true"] {
+            display: inline-block; /* Permite definir dimensões mínimas */
+            min-width: 100%;       /* Ocupa toda a largura da célula */
+            min-height: 20px;      /* Garante uma altura mínima para o clique */
+            padding: 2px;          /* Espaço interno para facilitar a edição */
+        }
+        /* --- FIM DA NOVA CORREÇÃO CSS --- */
+
         .gaveta { padding: 7px; border-radius: 8px; border: 1px solid var(--border); font-size: 12px; font-weight: bold; cursor: pointer; }
         .st-Pago { background: #d1fae5; color: #065f46; }
         .st-NaoPago { background: #ffe4e6; color: #9f1239; }
@@ -173,9 +182,7 @@
                             <option value="Não pago" ${status==='Não pago'?'selected':''}>${dic[idiomaAtual].st[2]}</option>
                         </select></td>`;
                     });
-                    // --- INÍCIO DA CORREÇÃO ---
-                    // Adicionado '|| ""' para garantir que o valor nunca seja nulo/undefined,
-                    // assegurando que o <span> seja sempre renderizado.
+                    
                     html += `<tr>
                         <td>${u.id}</td>
                         <td><span contenteditable="true" onblur="salvar(${u.id},'nome_cliente',this)">${u.nome_cliente || ''}</span></td>
@@ -185,7 +192,6 @@
                         <td><span contenteditable="true" onblur="salvar(${u.id},'renda',this)">${u.renda || ''}</span></td>
                         <td><span contenteditable="true" onblur="salvar(${u.id},'notas',this)">${u.notas || ''}</span></td>
                     </tr>`;
-                    // --- FIM DA CORREÇÃO ---
                 });
                 container.innerHTML += html + `</tbody></table></div></div>`;
             }
@@ -222,4 +228,5 @@
         }
     </script>
 </body>
-</html>
+    </html>
+    

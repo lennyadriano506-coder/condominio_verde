@@ -1,232 +1,758 @@
 <!DOCTYPE html>
-<html lang="pt">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Condomínios Malate - Gestão</title>
-    <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <title>Gestão de Condomínios | Premium Green</title>
     <style>
-        :root { 
-            --primary: #10b981; --primary-dark: #059669; --bg: #f0fdf4; 
-            --white: #ffffff; --text: #1f2937; --border: #d1fae5; --danger: #f43f5e;
+        /* Variáveis de Cor para Fácil Customização */
+        :root {
+            --primary-dark: #1b4332;  /* Verde floresta fechado */
+            --primary: #2d6a4f;       /* Verde principal elegante */
+            --primary-light: #d8f3dc; /* Verde bem claro para fundos/detalhes */
+            --accent: #40916c;        /* Verde intermediário para botões */
+            --bg-site: #f4f7f5;       /* Off-white levemente esverdeado */
+            --white: #ffffff;
+            --text-main: #2d3748;     /* Grafite escuro para leitura confortável */
+            --text-light: #718096;
+            
+            /* Cores de Status */
+            --pago: #2d6a4f;
+            --nao-pago: #bc4749;
+            --pendente: #f39c12;
         }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-        body { background: var(--bg); color: var(--text); padding-bottom: 50px; }
 
-        #login-overlay { position: fixed; inset: 0; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); z-index: 1000; display: flex; align-items: center; justify-content: center; }
-        .login-box { background: var(--white); padding: 40px; border-radius: 20px; text-align: center; width: 90%; max-width: 380px; box-shadow: 0 20px 25px rgba(0,0,0,0.1); }
-        .login-input { width: 100%; padding: 14px; margin-top: 10px; border: 2px solid var(--border); border-radius: 12px; font-size: 16px; }
-        .btn-access { background: none; border: none; color: #6b7280; font-size: 12px; margin-top: 15px; cursor: pointer; text-decoration: underline; }
-
-        header { background: var(--white); padding: 20px 5%; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--border); position: sticky; top: 0; z-index: 99; }
-        .logo-text { font-weight: 800; color: var(--primary-dark); font-size: 22px; }
-
-        main { padding: 20px 5%; }
-        .prop-section { margin-top: 40px; }
-        .prop-title { background: var(--primary); color: white; padding: 12px 25px; border-radius: 12px 12px 0 0; font-weight: 800; display: flex; align-items: center; gap: 10px; }
-        .btn-edit-title { background: none; border: none; color: white; cursor: pointer; }
-
-        .table-card { background: var(--white); border-radius: 0 15px 15px 15px; padding: 20px; border: 1px solid var(--border); overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; min-width: 1650px; }
-        th { text-align: left; padding: 14px; background: #f9fafb; font-size: 11px; color: #6b7280; text-transform: uppercase; }
-        td { padding: 12px; border-bottom: 1px solid var(--bg); font-size: 14px; }
-
-        /* --- INÍCIO DA NOVA CORREÇÃO CSS --- */
-        td span[contenteditable="true"] {
-            display: inline-block; /* Permite definir dimensões mínimas */
-            min-width: 100%;       /* Ocupa toda a largura da célula */
-            min-height: 20px;      /* Garante uma altura mínima para o clique */
-            padding: 2px;          /* Espaço interno para facilitar a edição */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
         }
-        /* --- FIM DA NOVA CORREÇÃO CSS --- */
 
-        .gaveta { padding: 7px; border-radius: 8px; border: 1px solid var(--border); font-size: 12px; font-weight: bold; cursor: pointer; }
-        .st-Pago { background: #d1fae5; color: #065f46; }
-        .st-NaoPago { background: #ffe4e6; color: #9f1239; }
-        .st-Pendente { background: #fef3c7; color: #92400e; }
+        body {
+            background-color: var(--bg-site);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            transition: all 0.3s ease;
+        }
 
-        .notas-gerais-section { margin: 40px 5%; padding: 20px; background: #fff; border-radius: 15px; border: 2px solid var(--primary); }
-        #notas-gerais-textarea { width: 100%; min-height: 150px; padding: 15px; border-radius: 10px; border: 1px solid var(--border); font-size: 16px; outline: none; }
+        /* TELA DE LOGIN */
+        #login-screen {
+            background: var(--white);
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(27, 67, 50, 0.08);
+            text-align: center;
+            width: 100%;
+            max-width: 400px;
+            border-top: 6px solid var(--primary);
+        }
+
+        #login-screen h2 {
+            margin-bottom: 10px;
+            color: var(--primary-dark);
+            font-size: 24px;
+        }
+
+        #login-screen p.subtitle {
+            color: var(--text-light);
+            font-size: 14px;
+            margin-bottom: 25px;
+        }
+
+        #login-screen input {
+            width: 100%;
+            padding: 14px;
+            margin-bottom: 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 16px;
+            text-align: center;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        #login-screen input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-light);
+        }
+
+        #login-screen button {
+            width: 100%;
+            padding: 14px;
+            background-color: var(--primary);
+            color: var(--white);
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+
+        #login-screen button:hover {
+            background-color: var(--primary-dark);
+        }
+
+        #error-msg {
+            color: var(--nao-pago);
+            margin-top: 12px;
+            font-size: 14px;
+            display: none;
+            font-weight: 500;
+        }
+
+        /* TELA PRINCIPAL (DASHBOARD) */
+        #main-screen {
+            display: none;
+            width: 100%;
+            padding: 40px 20px;
+            max-width: 1600px;
+            margin: 0 auto;
+            align-self: flex-start;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 35px;
+            background: var(--white);
+            padding: 20px 30px;
+            border-radius: 14px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+            border-left: 5px solid var(--primary);
+        }
+
+        header h1 {
+            color: var(--primary-dark);
+            font-size: 26px;
+            font-weight: 700;
+        }
+
+        .btn-logout {
+            padding: 10px 20px;
+            background-color: #edf2f7;
+            color: var(--text-main);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .btn-logout:hover {
+            background-color: #e2e8f0;
+            color: #c53030;
+        }
+
+        /* BLOCOS DE CONDOMÍNIO (PROPRIEDADES) */
+        .property-card {
+            background: var(--white);
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(27, 67, 50, 0.04);
+            margin-bottom: 40px;
+            border: 1px solid #e9f0ec;
+        }
+
+        .property-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--bg-site);
+        }
+
+        .property-title-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .property-icon {
+            background-color: var(--primary-light);
+            color: var(--primary-dark);
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .property-title-input {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary-dark);
+            border: none;
+            border-bottom: 2px dashed transparent;
+            padding: 4px 8px;
+            width: 380px;
+            outline: none;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .property-title-input:focus {
+            border-bottom-color: var(--primary);
+            background-color: var(--bg-site);
+        }
+
+        .btn-delete-prop {
+            background: transparent;
+            color: #a0aec0;
+            border: 1px solid #e2e8f0;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .btn-delete-prop:hover {
+            background: #fff5f5;
+            color: #e53e3e;
+            border-color: #fed7d7;
+        }
+
+        /* TABELAS MAIS ORGANIZADAS */
+        .table-container {
+            overflow-x: auto;
+            margin-top: 15px;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 1400px;
+        }
+
+        th {
+            background-color: var(--bg-site);
+            color: var(--primary-dark);
+            padding: 14px 10px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            text-align: left;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        td {
+            padding: 10px 8px;
+            border-bottom: 1px solid #edf2f7;
+            background-color: var(--white);
+        }
+
+        input.table-input {
+            width: 100%;
+            padding: 8px 10px;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 13px;
+            color: var(--text-main);
+            transition: all 0.2s;
+        }
+
+        input.table-input:focus {
+            border-color: var(--primary);
+            outline: none;
+            background-color: #fafdfb;
+        }
+
+        /* Dropdowns dos Meses Clean */
+        select.month-select {
+            width: 100%;
+            padding: 8px 4px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 700;
+            border: 1px solid transparent;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
+        }
+
+        select.status-pago { background-color: var(--primary-light); color: var(--primary-dark); }
+        select.status-nao-pago { background-color: #ffe3e3; color: #9b2c2c; }
+        select.status-pendente { background-color: #fef3c7; color: #92400e; }
+
+        select.month-select:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(0,0,0,0.1);
+        }
+
+        /* Sub-painel de Notas Organizado */
+        .note-row td {
+            background-color: #fafdfb;
+            padding: 0px 12px 14px 12px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .note-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--white);
+            padding: 10px 15px;
+            border-radius: 8px;
+            border: 1px solid #e9f0ec;
+        }
+
+        .note-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--accent);
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .note-input {
+            width: 100%;
+            border: none;
+            background-color: transparent;
+            font-size: 13px;
+            color: var(--text-main);
+            outline: none;
+        }
+
+        .note-input::placeholder {
+            color: #a0aec0;
+        }
+
+        /* Ações de Linhas */
+        .actions-cell {
+            text-align: center;
+        }
+
+        .btn-delete-resident {
+            background: transparent;
+            color: #a0aec0;
+            border: none;
+            padding: 6px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+
+        .btn-delete-resident:hover {
+            background-color: #ffe3e3;
+            color: #e53e3e;
+        }
+
+        .property-controls {
+            margin-top: 20px;
+        }
+
+        .btn-add-resident {
+            padding: 10px 20px;
+            background-color: var(--white);
+            color: var(--primary);
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-add-resident:hover {
+            background-color: var(--primary);
+            color: var(--white);
+        }
+
+        /* CONTROLES DO RODAPÉ */
+        .global-controls {
+            margin-top: 20px;
+            margin-bottom: 60px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--white);
+            padding: 25px 30px;
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+            border: 1px solid #e2e8f0;
+        }
+
+        .btn-add-property {
+            padding: 14px 32px;
+            background-color: var(--primary-dark);
+            color: var(--white);
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(27, 67, 50, 0.15);
+            transition: all 0.2s;
+        }
+
+        .btn-add-property:hover {
+            background-color: #112a20;
+            transform: translateY(-1px);
+        }
+
+        .save-indicator {
+            color: var(--text-light);
+            font-size: 14px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .save-indicator.loading::before {
+            background-color: var(--pendente);
+        }
+        .save-indicator.error::before {
+            background-color: var(--nao-pago);
+        }
+        .save-indicator::before {
+            content: '';
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background-color: var(--primary);
+            border-radius: 50%;
+            transition: background-color 0.3s;
+        }
     </style>
 </head>
 <body>
 
-    <div id="login-overlay">
-        <div class="login-box">
-            <h2 id="login-title">Condomínios Malate</h2>
-            <input type="text" id="user" class="login-input" placeholder="Usuário">
-            <input type="password" id="pass" class="login-input" placeholder="Senha">
-            <button onclick="realizarLogin()" id="btn-login-text" style="width:100%; margin-top:20px; padding:16px; background:var(--primary); color:white; border:none; border-radius:12px; font-weight:bold; cursor:pointer;">Entrar</button>
-            <button class="btn-access" onclick="alterarAcessoUniversal()" id="btn-change-access">Alterar Usuário/Senha para TODOS</button>
-        </div>
+    <div id="login-screen">
+        <h2>Acesso ao Sistema</h2>
+        <p class="subtitle">Gestão Residencial Condomínios</p>
+        <input type="password" id="password" placeholder="Digite a senha de acesso" onkeydown="if(event.key === 'Enter') checkLogin()">
+        <button onclick="checkLogin()">Entrar no Painel</button>
+        <p id="error-msg">Senha incorreta. Tente novamente.</p>
     </div>
 
-    <header>
-        <div class="logo-text" id="header-logo">CONDOMÍNIOS MALATE</div>
-        <div style="display: flex; align-items: center; gap: 20px;">
-            <button onclick="alternarIdioma()" id="btn-lang" style="background:var(--primary); color:white; border:none; padding:8px 15px; border-radius:8px; font-weight:bold; cursor:pointer;">DEUTSCH 🇩🇪</button>
-            <button onclick="location.reload()" style="background:none; border:none; color:var(--danger); cursor:pointer;"><i class="ph ph-power" style="font-size: 26px;"></i></button>
+    <div id="main-screen">
+        <header>
+            <h1>Painel de Gestão de Condôminos</h1>
+            <button class="btn-logout" onclick="logout()">Sair do Sistema</button>
+        </header>
+
+        <div id="properties-container"></div>
+
+        <div class="global-controls">
+            <button class="btn-add-property" onclick="addNewProperty()">+ Adicionar Novo Condomínio ou Casa</button>
+            <div class="save-indicator" id="save-status">Status da Nuvem</div>
         </div>
-    </header>
-
-    <main id="main-content"></main>
-
-    <div class="notas-gerais-section">
-        <h3 id="notas-title" style="margin-bottom:10px;">NOTAS GERAIS</h3>
-        <textarea id="notas-gerais-textarea" onblur="salvarNotasNoSB(this.value)"></textarea>
     </div>
 
     <script>
-        const SB_URL = 'https://dwznzdnvtezhkqzqwrsa.supabase.co'; 
-        const SB_KEY = 'sb_publishable_ZajKS3fZjhbLeGLdo-2IsA_sQgarlui';
-        const _supabase = supabase.createClient(SB_URL, SB_KEY);
+        // --- CONFIGURAÇÕES SUPABASE ---
+        const SUPABASE_URL = "https://wnhglwmeyrlljmdxogrk.supabase.co/rest/v1/";
+        const SUPABASE_KEY = "sb_publishable_vbtd9NfnnPTyJps3wm22yg_Pp4BwWn6";
+        
+        const CORRECT_PASSWORD = "1234";
+        const INITIAL_PROPERTIES_COUNT = 6;
+        const MONTHS = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
+        
+        let propertiesData = [];
+        let syncTimeout = null;
 
-        let idiomaAtual = 'pt';
-        const meses = ['jan','fev','mar','abr','mai','jun','jul','ago','set_','out_','nov','dez'];
-
-        const dic = {
-            pt: {
-                loginTitle: "Condomínios Malate", btnLogin: "Entrar", btnAccess: "Alterar Usuário/Senha (Global)",
-                header: "CONDOMÍNIOS MALATE", notas: "NOTAS GERAIS E OBSERVAÇÕES",
-                th: ["ID", "Nome Cliente", "Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez", "Apt", "Contacto", "Renda", "Notas"],
-                st: ["Pendente", "Pago", "Não pago"], placeholderNota: "Escreva aqui..."
-            },
-            de: {
-                loginTitle: "Malate Wohnanlagen", btnLogin: "Einloggen", btnAccess: "Zugangsdaten für ALLE ändern",
-                header: "MALATE WOHNANLAGEN", notas: "ALLGEMEINE NOTIZEN UND BEMERKUNGEN",
-                th: ["ID", "Kundenname", "Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez", "Whg", "Kontakt", "Miete", "Notizen"],
-                st: ["Ausstehend", "Bezahlt", "Nicht bezahlt"], placeholderNota: "Schreiben Sie hier..."
-            }
-        };
-
-        const geoTraducoes = {
-            "Condomínio": "Wohnanlage", "Casa": "Haus", "Apartamento": "Wohnung", "Cidade": "Stadt",
-            "Grande": "Groß", "Loja": "Geschäft", "Benfica": "Benfica (Bezirk)", "Choupal": "Choupal (Viertel)"
-        };
-
-        function traduzirTexto(texto) {
-            if (idiomaAtual === 'pt') return texto;
-            let traduzido = texto;
-            for (const [pt, de] of Object.entries(geoTraducoes)) {
-                const regex = new RegExp(pt, 'gi');
-                traduzido = traduzido.replace(regex, de);
-            }
-            return traduzido;
-        }
-
-        async function realizarLogin() {
-            const userIn = document.getElementById('user').value;
-            const passIn = document.getElementById('pass').value;
-
-            let { data } = await _supabase.from('acesso_sistema').select('*').eq('id', 1).single();
-
-            if(userIn === data.usuario && passIn === data.senha) {
-                document.getElementById('login-overlay').style.display = 'none';
-                carregarTudo();
-            } else { alert('Acesso negado!'); }
-        }
-
-        async function alterarAcessoUniversal() {
-            const atual = prompt("Digite a SENHA ATUAL para autorizar a mudança:");
-            let { data } = await _supabase.from('acesso_sistema').select('senha').eq('id', 1).single();
-            
-            if(atual === data.senha) {
-                const novoU = prompt("Novo usuário para todos:");
-                const novoP = prompt("Nova senha para todos:");
-                if(novoU && novoP) {
-                    await _supabase.from('acesso_sistema').update({ usuario: novoU, senha: novoP }).eq('id', 1);
-                    alert("Acesso atualizado no servidor para todos os usuários!");
-                }
-            } else { alert("Senha atual incorreta. Não autorizado."); }
-        }
-
-        async function carregarTudo() {
-            const container = document.getElementById('main-content');
-            document.getElementById('header-logo').innerText = dic[idiomaAtual].header;
-            document.getElementById('notas-title').innerText = dic[idiomaAtual].notas;
-            document.getElementById('notas-gerais-textarea').placeholder = dic[idiomaAtual].placeholderNota;
-
-            let { data } = await _supabase.from('condominio_verde').select('*').order('id', { ascending: true });
-            const grupos = data.reduce((acc, item) => {
-                if (!acc[item.propriedade]) acc[item.propriedade] = [];
-                acc[item.propriedade].push(item);
-                return acc;
-            }, {});
-
-            container.innerHTML = '';
-            for (const prop in grupos) {
-                const nomeExibicao = traduzirTexto(prop);
-                let ths = '';
-                dic[idiomaAtual].th.forEach(t => ths += `<th>${t}</th>`);
-
-                let html = `
-                <div class="prop-section">
-                    <div class="prop-title">
-                        <span>${nomeExibicao}</span>
-                        <button class="btn-edit-title" onclick="editarNomeProp('${prop}')"><i class="ph ph-pencil"></i></button>
-                    </div>
-                    <div class="table-card">
-                        <table>
-                            <thead><tr>${ths}</tr></thead>
-                            <tbody>`;
+        // --- SISTEMA DE LOGIN ---
+        async function checkLogin() {
+            const passInput = document.getElementById('password').value;
+            if (passInput === CORRECT_PASSWORD) {
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('main-screen').style.display = 'block';
+                document.body.style.alignItems = 'flex-start';
                 
-                grupos[prop].forEach(u => {
-                    let colMeses = '';
-                    meses.forEach(m => {
-                        const status = u[m] || 'Pendente';
-                        const idx = status === 'Pendente' ? 0 : (status === 'Pago' ? 1 : 2);
-                        colMeses += `<td><select class="gaveta st-${status.replace(' ', '')}" onchange="atualizarStatus(${u.id},'${m}',this)">
-                            <option value="Pendente" ${status==='Pendente'?'selected':''}>${dic[idiomaAtual].st[0]}</option>
-                            <option value="Pago" ${status==='Pago'?'selected':''}>${dic[idiomaAtual].st[1]}</option>
-                            <option value="Não pago" ${status==='Não pago'?'selected':''}>${dic[idiomaAtual].st[2]}</option>
-                        </select></td>`;
-                    });
-                    
-                    html += `<tr>
-                        <td>${u.id}</td>
-                        <td><span contenteditable="true" onblur="salvar(${u.id},'nome_cliente',this)">${u.nome_cliente || ''}</span></td>
-                        ${colMeses}
-                        <td><span contenteditable="true" onblur="salvar(${u.id},'apartamento',this)">${u.apartamento || ''}</span></td>
-                        <td><span contenteditable="true" onblur="salvar(${u.id},'contacto',this)">${u.contacto || ''}</span></td>
-                        <td><span contenteditable="true" onblur="salvar(${u.id},'renda',this)">${u.renda || ''}</span></td>
-                        <td><span contenteditable="true" onblur="salvar(${u.id},'notas',this)">${u.notas || ''}</span></td>
-                    </tr>`;
-                });
-                container.innerHTML += html + `</tbody></table></div></div>`;
+                const container = document.getElementById('properties-container');
+                container.innerHTML = '<p style="text-align:center; padding: 40px; color: var(--primary);">Carregando dados da nuvem Supabase...</p>';
+                
+                await loadFromSupabase();
+            } else {
+                const error = document.getElementById('error-msg');
+                error.style.display = 'block';
+                document.getElementById('password').value = '';
             }
-            carregarNotasDoSB();
         }
 
-        async function editarNomeProp(velho) {
-            const novo = prompt("Novo nome (em PT):", velho);
-            if(novo) { await _supabase.from('condominio_verde').update({propriedade: novo}).eq('propriedade', velho); carregarTudo(); }
+        function logout() {
+            document.getElementById('password').value = '';
+            document.getElementById('error-msg').style.display = 'none';
+            document.getElementById('login-screen').style.display = 'block';
+            document.getElementById('main-screen').style.display = 'none';
+            document.body.style.alignItems = 'center';
+            propertiesData = []; // Limpa dados da memória ao sair
         }
 
-        async function atualizarStatus(id, mes, el) {
-            await _supabase.from('condominio_verde').update({ [mes]: el.value }).eq('id', id);
-            carregarTudo();
+        // --- COMUNICAÇÃO COM SUPABASE ---
+        async function loadFromSupabase() {
+            try {
+                const response = await fetch(SUPABASE_URL + 'app_data?id=eq.1', {
+                    method: 'GET',
+                    headers: {
+                        'apikey': SUPABASE_KEY,
+                        'Authorization': 'Bearer ' + SUPABASE_KEY
+                    }
+                });
+                
+                const data = await response.json();
+
+                if (response.ok && data && data.length > 0 && data[0].properties) {
+                    propertiesData = data[0].properties;
+                    showSaveIndicator("Nuvem sincronizada", "success");
+                } else {
+                    // Se a tabela estiver vazia, cria os dados base e já salva
+                    for (let i = 1; i <= INITIAL_PROPERTIES_COUNT; i++) {
+                        propertiesData.push(createEmptyProperty(`Condomínio / Casa 0${i}`));
+                    }
+                    await saveToSupabase(); 
+                }
+                renderProperties();
+            } catch (error) {
+                console.error("Erro ao carregar dados do Supabase:", error);
+                showSaveIndicator("Erro de conexão", "error");
+                document.getElementById('properties-container').innerHTML = '<p style="text-align:center; color: red;">Falha ao conectar ao banco de dados. Verifique a tabela e as permissões RLS no Supabase.</p>';
+            }
         }
 
-        async function salvar(id, campo, el) {
-            await _supabase.from('condominio_verde').update({ [campo]: el.innerText }).eq('id', id);
+        async function saveToSupabase() {
+            showSaveIndicator("Salvando na nuvem...", "loading");
+            try {
+                // Usa POST com upsert (merge-duplicates) para inserir ou atualizar a linha id=1
+                const response = await fetch(SUPABASE_URL + 'app_data', {
+                    method: 'POST',
+                    headers: {
+                        'apikey': SUPABASE_KEY,
+                        'Authorization': 'Bearer ' + SUPABASE_KEY,
+                        'Content-Type': 'application/json',
+                        'Prefer': 'resolution=merge-duplicates'
+                    },
+                    body: JSON.stringify({ id: 1, properties: propertiesData })
+                });
+                
+                if (response.ok) {
+                    showSaveIndicator("Alterações salvas na nuvem!", "success");
+                } else {
+                    console.error("Erro da API:", await response.text());
+                    showSaveIndicator("Erro ao salvar", "error");
+                }
+            } catch (error) {
+                console.error("Erro de requisição:", error);
+                showSaveIndicator("Sem conexão com a internet", "error");
+            }
         }
 
-        async function salvarNotasNoSB(txt) {
-            await _supabase.from('notas_config').update({ texto_notas: txt }).eq('id', 1);
+        // Gerenciador de fila de salvamento (Debounce)
+        function triggerSync() {
+            showSaveIndicator("Aguardando para salvar...", "loading");
+            if (syncTimeout) clearTimeout(syncTimeout);
+            
+            // Aguarda o usuário parar de digitar por 1.5s antes de mandar pro Supabase
+            syncTimeout = setTimeout(() => {
+                saveToSupabase();
+            }, 1500);
         }
 
-        async function carregarNotasDoSB() {
-            let { data } = await _supabase.from('notas_config').select('texto_notas').eq('id', 1).single();
-            if(data) document.getElementById('notas-gerais-textarea').value = data.texto_notas;
+        function showSaveIndicator(msg, state = "success") {
+            const status = document.getElementById('save-status');
+            status.textContent = msg;
+            status.className = `save-indicator ${state}`;
+            
+            if (msg === "Alterações salvas na nuvem!") {
+                setTimeout(() => {
+                    status.textContent = "Nuvem sincronizada";
+                }, 2500);
+            }
         }
 
-        function alternarIdioma() {
-            idiomaAtual = idiomaAtual === 'pt' ? 'de' : 'pt';
-            document.getElementById('btn-lang').innerText = idiomaAtual === 'pt' ? 'DEUTSCH 🇩🇪' : 'PORTUGUÊS 🇵🇹';
-            carregarTudo();
+        // --- MANIPULAÇÃO DE ESTRUTURAS ---
+        function createEmptyProperty(defaultName = '') {
+            return {
+                id: 'prop_' + Date.now() + Math.random().toString(36).substr(2, 9),
+                name: defaultName,
+                residents: [createEmptyResident()]
+            };
+        }
+
+        function createEmptyResident() {
+            const res = {
+                id: 'res_' + Date.now() + Math.random().toString(36).substr(2, 9),
+                nomeMorador: '',
+                apto: '',
+                contacto: '',
+                renda: '',
+                nota: ''
+            };
+            MONTHS.forEach(m => res[m] = 'pendente');
+            return res;
+        }
+
+        // --- RENDERIZAÇÃO DA INTERFACE ---
+        function renderProperties() {
+            const container = document.getElementById('properties-container');
+            container.innerHTML = '';
+
+            propertiesData.forEach((property, pIndex) => {
+                const card = document.createElement('div');
+                card.className = 'property-card';
+
+                card.innerHTML = `
+                    <div class="property-header">
+                        <div class="property-title-container">
+                            <div class="property-icon">${pIndex + 1}</div>
+                            <input type="text" class="property-title-input" value="${property.name}" 
+                                oninput="updatePropertyField('${property.id}', this.value)" placeholder="Nome da Propriedade">
+                        </div>
+                        <button class="btn-delete-prop" onclick="deleteProperty('${property.id}')">Excluir Bloco</button>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th style="width: 240px;">Nome do Morador</th>
+                                    <th style="width: 100px;">Apto/Casa</th>
+                                    <th style="width: 130px;">Contacto</th>
+                                    <th style="width: 110px;">Renda ($)</th>
+                                    <th>Jan</th><th>Fev</th><th>Mar</th><th>Abr</th><th>Mai</th><th>Jun</th>
+                                    <th>Jul</th><th>Ago</th><th>Set</th><th>Out</th><th>Nov</th><th>Dez</th>
+                                    <th style="width: 50px; text-align: center;"></th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody-${property.id}"></tbody>
+                        </table>
+                    </div>
+                    <div class="property-controls">
+                        <button class="btn-add-resident" onclick="addNewResidentRow('${property.id}')">+ Adicionar Nova Fileira de Morador</button>
+                    </div>
+                `;
+
+                container.appendChild(card);
+
+                const tbody = document.getElementById(`tbody-${property.id}`);
+                
+                property.residents.forEach(resident => {
+                    const mainRow = document.createElement('tr');
+                    mainRow.innerHTML = `
+                        <td><input type="text" class="table-input" value="${resident.nomeMorador}" oninput="updateResidentField('${property.id}', '${resident.id}', 'nomeMorador', this.value)" placeholder="Nome completo"></td>
+                        <td><input type="text" class="table-input" value="${resident.apto}" oninput="updateResidentField('${property.id}', '${resident.id}', 'apto', this.value)" placeholder="Ex: 10A"></td>
+                        <td><input type="text" class="table-input" value="${resident.contacto}" oninput="updateResidentField('${property.id}', '${resident.id}', 'contacto', this.value)" placeholder="(00) 00000-0000"></td>
+                        <td><input type="number" class="table-input" value="${resident.renda}" oninput="updateResidentField('${property.id}', '${resident.id}', 'renda', this.value)" placeholder="0.00"></td>
+                    `;
+
+                    MONTHS.forEach(month => {
+                        const tdMonth = document.createElement('td');
+                        const select = document.createElement('select');
+                        select.className = `month-select ${getStatusClass(resident[month])}`;
+                        
+                        select.innerHTML = `
+                            <option value="pago" ${resident[month] === 'pago' ? 'selected' : ''}>Pago</option>
+                            <option value="não pago" ${resident[month] === 'não pago' ? 'selected' : ''}>Não Pago</option>
+                            <option value="pendente" ${resident[month] === 'pendente' ? 'selected' : ''}>Pendente</option>
+                        `;
+                        
+                        select.onchange = function() {
+                            this.className = `month-select ${getStatusClass(this.value)}`;
+                            updateResidentField(property.id, resident.id, month, this.value);
+                        };
+
+                        tdMonth.appendChild(select);
+                        mainRow.appendChild(tdMonth);
+                    });
+
+                    const tdAction = document.createElement('td');
+                    tdAction.className = 'actions-cell';
+                    tdAction.innerHTML = `<button class="btn-delete-resident" onclick="deleteResidentRow('${property.id}', '${resident.id}')" title="Excluir Morador">✕</button>`;
+                    mainRow.appendChild(tdAction);
+
+                    const noteRow = document.createElement('tr');
+                    noteRow.className = 'note-row';
+                    noteRow.innerHTML = `
+                        <td colspan="17">
+                            <div class="note-container">
+                                <span class="note-label">Observações:</span>
+                                <input type="text" class="note-input" value="${resident.nota || ''}" oninput="updateResidentField('${property.id}', '${resident.id}', 'nota', this.value)" placeholder="Adicione notas internas sobre pagamentos, histórico ou acordos deste morador...">
+                            </div>
+                        </td>
+                    `;
+
+                    tbody.appendChild(mainRow);
+                    tbody.appendChild(noteRow);
+                });
+            });
+        }
+
+        function getStatusClass(value) {
+            if (value === 'pago') return 'status-pago';
+            if (value === 'não pago') return 'status-nao-pago';
+            return 'status-pendente';
+        }
+
+        // --- ATUALIZAÇÃO REATIVA DOS DADOS ---
+        function updatePropertyField(propertyId, value) {
+            const prop = propertiesData.find(p => p.id === propertyId);
+            if (prop) {
+                prop.name = value;
+                triggerSync();
+            }
+        }
+
+        function updateResidentField(propertyId, residentId, field, value) {
+            const prop = propertiesData.find(p => p.id === propertyId);
+            if (prop) {
+                const res = prop.residents.find(r => r.id === residentId);
+                if (res) {
+                    res[field] = value;
+                    triggerSync();
+                }
+            }
+        }
+
+        // --- AÇÕES OPERACIONAIS ---
+        function addNewResidentRow(propertyId) {
+            const prop = propertiesData.find(p => p.id === propertyId);
+            if (prop) {
+                prop.residents.push(createEmptyResident());
+                triggerSync();
+                renderProperties();
+            }
+        }
+
+        function deleteResidentRow(propertyId, residentId) {
+            const prop = propertiesData.find(p => p.id === propertyId);
+            if (prop) {
+                if (confirm("Deseja mesmo excluir este registro de morador?")) {
+                    prop.residents = prop.residents.filter(r => r.id !== residentId);
+                    triggerSync();
+                    renderProperties();
+                }
+            }
+        }
+
+        function addNewProperty() {
+            const count = propertiesData.length + 1;
+            propertiesData.push(createEmptyProperty(`Condomínio / Casa ${count < 10 ? '0' + count : count}`));
+            triggerSync();
+            renderProperties();
+            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+        }
+
+        function deleteProperty(propertyId) {
+            if (confirm("Tem certeza que deseja apagar essa propriedade inteira? Todos os dados vinculados a ela sumirão.")) {
+                propertiesData = propertiesData.filter(p => p.id !== propertyId);
+                triggerSync();
+                renderProperties();
+            }
         }
     </script>
 </body>
-    </html>
-    
+</html>
